@@ -1,0 +1,107 @@
+{
+  "name": "@shadow-js/query",
+  "version": "1.0.0",
+  "description": "Fetch, cache and update server data with queries, mutations and optimistic updates",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/dev/index.d.ts",
+      "development": "./dist/dev/index.js",
+      "default": "./dist/prod/index.js"
+    },
+    "./server": {
+      "types": "./dist/dev/server.d.ts",
+      "development": "./dist/dev/server.js",
+      "default": "./dist/prod/server.js"
+    },
+    "./offline": {
+      "types": "./dist/dev/offline.d.ts",
+      "development": "./dist/dev/offline.js",
+      "default": "./dist/prod/offline.js"
+    },
+    "./queue": {
+      "types": "./dist/dev/queue.d.ts",
+      "development": "./dist/dev/queue.js",
+      "default": "./dist/prod/queue.js"
+    },
+    "./persist": {
+      "types": "./dist/dev/persist.d.ts",
+      "development": "./dist/dev/persist.js",
+      "default": "./dist/prod/persist.js"
+    },
+    "./scope": {
+      "types": "./dist/dev/scope.d.ts",
+      "development": "./dist/dev/scope.js",
+      "default": "./dist/prod/scope.js"
+    },
+    "./inspection": {
+      "types": "./dist/dev/inspection.d.ts",
+      "development": "./dist/dev/inspection.js",
+      "default": "./dist/prod/inspection.js"
+    },
+    "./hydration": {
+      "types": "./dist/dev/hydration.d.ts",
+      "development": "./dist/dev/hydration.js",
+      "default": "./dist/prod/hydration.js"
+    },
+    "./full": {
+      "types": "./dist/dev/full.d.ts",
+      "development": "./dist/dev/full.js",
+      "default": "./dist/prod/full.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "tsdown --config-loader native",
+    "typecheck": "tsc -p tsconfig.json",
+    "typecheck:types": "tsc -p tsconfig.test-types.json",
+    "lint": "biome check .",
+    "test": "vitest run --project unit --project dom --project server",
+    "test:gc": "vitest run --project gc --passWithNoTests",
+    "test:perf": "vitest run --project perf --passWithNoTests",
+    "check": "npm run lint && npm run typecheck && npm run build && npm test && npm run test:perf && npm run test:gc"
+  },
+  "peerDependencies": {
+    "@shadow-js/core": "^1.0.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "@shadow-js/core": "^1.0.0",
+    "@shadow-js/router": "*",
+    "@shadow-js/testing": "^1.0.0",
+    "@shadow-js/web": "^1.0.0",
+    "@testing-library/dom": "10.4.2",
+    "@types/node": "^24.0.0",
+    "fast-check": "^4.10.2",
+    "happy-dom": "^21.0.3",
+    "tsdown": "0.23.0",
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
+  },
+  "homepage": "https://query.shadowjs.net",
+  "keywords": [
+    "shadowjs",
+    "query"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shadowjs-dev/query.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shadowjs-dev/query/issues"
+  }
+}
