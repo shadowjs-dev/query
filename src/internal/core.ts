@@ -183,9 +183,34 @@ const INITIAL_STATE: QueryState = {
 
 const MAX_WARNINGS = 64;
 
+/** The policy a query has when neither the client nor the call says otherwise. */
+const BASE_POLICY: Policy = {
+  staleTime: 0,
+  gcTime: 300_000,
+  retry: 3,
+  retryDelay: defaultRetryDelay,
+  refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
+  refetchOnMount: true,
+  structuralSharing: true,
+  networkMode: "online",
+};
+
+/** A policy: the base one, with each option the overrides set (an unset or `null` option keeps the base's). */
+function mergePolicy(base: Policy, overrides: QueryDefaults | undefined): Policy {
+  const merged: Record<string, unknown> = {};
+  for (const key of Object.keys(base) as (keyof Policy)[])
+    merged[key] = overrides?.[key] ?? base[key];
+  return merged as unknown as Policy;
+}
+
 function boundedInt(value: number, name: string): number {
   if (!Number.isInteger(value) || value < 1) {
-    throw new RangeError(`createQueryClient: ${name} must be a positive integer, got ${value}`);
+    throw new RangeError(
+      __DEV__
+        ? `createQueryClient: ${name} must be a positive integer, got ${value}`
+        : `QUERY_LIMIT ${name}`,
+    );
   }
   return value;
 }
@@ -268,18 +293,7 @@ export function createCore(options: QueryClientOptions): Core {
   const queryDefaults: DefaultOptions["queries"] = options.defaultOptions?.queries;
   // The slots the features fill when they are installed, at the end of this function (see `Extensions`).
   const ext: Extensions = {};
-  const defaultNetwork = queryDefaults?.networkMode ?? "online";
-  const defaultPolicy: Policy = {
-    staleTime: queryDefaults?.staleTime ?? 0,
-    gcTime: queryDefaults?.gcTime ?? 300_000,
-    retry: queryDefaults?.retry ?? 3,
-    retryDelay: queryDefaults?.retryDelay ?? defaultRetryDelay,
-    refetchOnWindowFocus: queryDefaults?.refetchOnWindowFocus ?? true,
-    refetchOnReconnect: queryDefaults?.refetchOnReconnect ?? true,
-    refetchOnMount: queryDefaults?.refetchOnMount ?? true,
-    structuralSharing: queryDefaults?.structuralSharing ?? true,
-    networkMode: defaultNetwork,
-  };
+  const defaultPolicy = mergePolicy(BASE_POLICY, queryDefaults);
   const mutationDefaults: MutationDefaults | undefined = options.defaultOptions?.mutations;
   const defaultMutation = {
     retry: mutationDefaults?.retry ?? 0,
@@ -344,18 +358,9 @@ export function createCore(options: QueryClientOptions): Core {
   };
 
   const policyWith = (overrides: QueryDefaults): Policy => {
-    checkNetworkMode(overrides.networkMode ?? defaultPolicy.networkMode, ext);
-    return {
-      staleTime: overrides.staleTime ?? defaultPolicy.staleTime,
-      gcTime: overrides.gcTime ?? defaultPolicy.gcTime,
-      retry: overrides.retry ?? defaultPolicy.retry,
-      retryDelay: overrides.retryDelay ?? defaultPolicy.retryDelay,
-      refetchOnWindowFocus: overrides.refetchOnWindowFocus ?? defaultPolicy.refetchOnWindowFocus,
-      refetchOnReconnect: overrides.refetchOnReconnect ?? defaultPolicy.refetchOnReconnect,
-      refetchOnMount: overrides.refetchOnMount ?? defaultPolicy.refetchOnMount,
-      structuralSharing: overrides.structuralSharing ?? defaultPolicy.structuralSharing,
-      networkMode: overrides.networkMode ?? defaultPolicy.networkMode,
-    };
+    const policy = mergePolicy(defaultPolicy, overrides);
+    checkNetworkMode(policy.networkMode, ext);
+    return policy;
   };
 
   const state = (entry: QueryEntry): QueryState => untrack(() => readSignal(entry.cell));
@@ -428,11 +433,14 @@ export function createCore(options: QueryClientOptions): Core {
     clearGc(entry);
     if (entry.observers > 0 || entry.flight !== undefined) return;
     if (entry.policy.gcTime === Infinity) return;
-    entry.gcTimer = setTimeout(() => {
+    const timer = setTimeout(() => {
       entry.gcTimer = undefined;
       if (entry.observers === 0 && entry.flight === undefined) removeEntry(entry);
       // A gcTime above the longest timer wait would remove the entry at once, so it waits the longest.
     }, timerDelay(entry.policy.gcTime));
+    // In Node (SSR, SSG) a pending timer keeps the process, and the per-request client it closes over, alive.
+    (timer as { unref?: () => void }).unref?.();
+    entry.gcTimer = timer;
   };
 
   /** Keeps at most `maxQueries` unobserved entries: the least recently used go first. */
@@ -923,6 +931,6 @@ export function createCore(options: QueryClientOptions): Core {
   };
   // The features come last: they may read the caches (a persisted cache is restored while they install).
   for (const feature of collectFeatures(options.features)) feature.plug(core);
-  checkNetworkMode(defaultNetwork, ext);
+  checkNetworkMode(defaultPolicy.networkMode, ext);
   return core;
 }

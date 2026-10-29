@@ -171,6 +171,14 @@ names the feature and its import.
   from the data you hold.
 - Failed fetches retry with backoff, then report their error.
 
+## Production error codes
+
+A production build keeps a short code instead of the development explanation, so message text never reaches user bundles. Search this table for the code. In the explanation, `…` stands for a value the development message names. A code followed by a word names the option at fault.
+
+| Code | Development explanation |
+| --- | --- |
+| `QUERY_LIMIT` | createQueryClient: … must be a positive integer, got …. |
+
 ## Links
 
 - [ShadowJS documentation](https://shadowjs.net): guides and the API reference.

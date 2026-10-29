@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.3
+
+### Fixed
+
+- A throw in a mutation's `onSettled` after a success is reported like other callback errors; it no longer fails the call, runs `onError` (a rollback after a good write) or runs `onSettled` twice.
+- The garbage-collection timer of an unobserved entry is unref'd in Node, so server-rendered pages no longer keep the process (and the per-request client) alive for `gcTime`.
+- Smaller bundles with the same behavior. Production builds of table, query and virtual throw short codes (`TABLE_DUPLICATE`, `QUERY_LIMIT`, `VIRTUAL_KERNEL`) instead of the development messages; each package's README lists them.
+
 ## 1.0.2
 
 ### Fixed

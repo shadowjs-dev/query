@@ -127,7 +127,8 @@ export function useMutation<TData, TVariables = void, TContext = unknown>(
       );
       const outcome: Settled<TData> = { ok: true, data };
       untrack(() => options.onSuccess?.(data, variables, context));
-      untrack(() => options.onSettled?.(data, undefined, variables, context));
+      // Only onSuccess may fail the call: a write that went through is not rolled back by a failing onSettled.
+      core.guard(() => options.onSettled?.(data, undefined, variables, context));
       core.mutations.update(id, { status: "success", data });
       if (call === latest) put({ status: "success", data, error: undefined, variables });
       notifyCache({ id }, outcome);
