@@ -90,7 +90,8 @@ export interface QueryDefaults {
   readonly staleTime?: number | undefined;
   /**
    * Milliseconds an entry with no observer is kept before it is removed from the cache. `Infinity`
-   * keeps it until `maxQueries` evicts it or `reset()` runs.
+   * keeps it until `maxQueries` evicts it or `reset()` runs. A longer finite time than a timer can
+   * wait (2147483647 ms, about 24.8 days) counts as that longest wait.
    * @default 300000 (five minutes)
    */
   readonly gcTime?: number | undefined;

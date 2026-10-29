@@ -155,6 +155,18 @@ export interface Core extends QueryFeatureHost {
   guard(callback: () => void): void;
 }
 
+/** The longest delay a timer can wait: a longer one fires at once. @internal */
+export const MAX_TIMER_DELAY: number = 2 ** 31 - 1;
+
+/**
+ * A delay a timer can honor: below zero or NaN is zero, above the longest wait is that wait. A
+ * `setTimeout` of more than 2^31 - 1 ms would otherwise fire at once.
+ * @internal
+ */
+export function timerDelay(ms: number): number {
+  return ms > 0 ? Math.min(ms, MAX_TIMER_DELAY) : 0;
+}
+
 /** Default backoff: 1 s, 2 s, 4 s... capped at 30 s. @internal */
 export function defaultRetryDelay(failureCount: number): number {
   return Math.min(1000 * 2 ** (failureCount - 1), 30_000);
@@ -194,7 +206,7 @@ function sleep(ms: number, signal: AbortSignal): Promise<void> {
     const timer = setTimeout(() => {
       signal.removeEventListener("abort", onAbort);
       resolve();
-    }, ms);
+    }, timerDelay(ms));
     const onAbort = (): void => {
       clearTimeout(timer);
       reject(abortError());
@@ -419,7 +431,8 @@ export function createCore(options: QueryClientOptions): Core {
     entry.gcTimer = setTimeout(() => {
       entry.gcTimer = undefined;
       if (entry.observers === 0 && entry.flight === undefined) removeEntry(entry);
-    }, entry.policy.gcTime);
+      // A gcTime above the longest timer wait would remove the entry at once, so it waits the longest.
+    }, timerDelay(entry.policy.gcTime));
   };
 
   /** Keeps at most `maxQueries` unobserved entries: the least recently used go first. */

@@ -11,7 +11,15 @@ import {
 import { createSignalNode, readSignal, type SignalNode, writeSignal } from "@shadow-js/core/extend";
 import { hashKey, type QueryKey } from "../key";
 import type { QueryKeyInput } from "../types";
-import type { Core, Outcome, Policy, QueryEntry, QueryState, Runner } from "./core";
+import {
+  type Core,
+  type Outcome,
+  type Policy,
+  type QueryEntry,
+  type QueryState,
+  type Runner,
+  timerDelay,
+} from "./core";
 
 /** @internal */
 export interface ObserverArgs {
@@ -116,11 +124,12 @@ export function createObserver(args: ObserverArgs): Observer {
       useRenderEffect(
         () => (args.enabled() ? every() : false),
         (ms) => {
-          if (ms === false || ms <= 0) return undefined;
+          // Infinity means "never"; a NaN or negative interval is none. A setInterval of 0 would poll in a hot loop.
+          if (ms === false || !(ms > 0) || ms === Number.POSITIVE_INFINITY) return undefined;
           const timer = setInterval(() => {
             const active = observed;
             if (active !== undefined) void core.refetch(active.entry, false);
-          }, ms);
+          }, timerDelay(ms));
           return () => clearInterval(timer);
         },
       );

@@ -234,7 +234,13 @@ export function persist(options: PersistOptions): PersistFeature {
     whenSettled(
       () => storage.removeItem(storageKey),
       () => undefined,
-      () => undefined,
+      (cause) =>
+        report(
+          "write",
+          "the storage refused to delete an unusable cache",
+          cause,
+          `d:${storageKey}`,
+        ),
     );
   }
 
@@ -711,8 +717,14 @@ export function persist(options: PersistOptions): PersistFeature {
               texts.push(JSON.stringify(item));
             }
           }
-        } catch {
-          // A corrupt list is replaced by this tab's own calls.
+        } catch (cause) {
+          // A corrupt list is replaced by this tab's own calls; the owner is told it was there.
+          report(
+            "restore",
+            "the stored mutations are not JSON; they are replaced",
+            cause,
+            "m:replace",
+          );
         }
       }
       for (const text of owned.values()) texts.push(text);
@@ -842,7 +854,13 @@ export function persist(options: PersistOptions): PersistFeature {
             let hash: string;
             try {
               hash = hashKey(record.mutationKey);
-            } catch {
+            } catch (cause) {
+              report(
+                "serialize",
+                "a paused mutation has a key that is not plain data; it is not persisted",
+                cause,
+                "s:mutationKey",
+              );
               return;
             }
             if (!definitions.has(hash)) return;

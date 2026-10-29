@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.2
+
+### Fixed
+
+- A `gcTime` or `retryDelay` above 2147483647 ms is capped at the longest a timer can wait; before, such a `gcTime` removed an unobserved entry after one millisecond and such a retry delay retried at once.
+- A `refetchInterval` of `Infinity` (or `NaN`) no longer polls in a hot loop, and one above 2147483647 ms is capped.
+- `reset()` of `useMutation` also ignores a call that is still running, so its late result no longer turns the status back from `idle`.
+- `persist` reports a corrupt stored mutation list, a paused mutation whose key is not plain data, and a storage that refuses to delete an unusable cache, instead of dropping them silently.
+
 ## 1.0.1
 
 ### Changed

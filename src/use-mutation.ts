@@ -165,7 +165,11 @@ export function useMutation<TData, TVariables = void, TContext = unknown>(
     status: () => local().status,
     isPending: () => local().status === "pending",
     variables: () => local().variables,
-    reset: () => put(idle<TData, TVariables>()),
+    reset: () => {
+      // A call still running no longer owns the state: its result must not undo the reset.
+      latest += 1;
+      put(idle<TData, TVariables>());
+    },
   };
 }
 
