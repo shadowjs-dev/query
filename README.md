@@ -70,7 +70,7 @@ describe("useTodos", () => {
 - `createQueryClient(options?)`: a client with its own cache. `defaultOptions.queries` sets `staleTime`
   (default 0), `gcTime` (300 000 ms), `retry` (3), `retryDelay`, `refetchOnWindowFocus`, `refetchOnReconnect`,
   `refetchOnMount`, `structuralSharing` and `networkMode` (`online`: wait while offline, `always`: never wait; any
-  other value needs the `offline` feature).
+  value other than `online` needs the `offline` feature).
   `queryCache.maxQueries` (500) and `mutationCache.maxMutations` (100) bound the caches.
 - `client.getCache(key)` / `client.setCache(key, value | updater, { updatedAt? })`: read and write data.
 - `client.invalidate(filter?, { refetchType? })`: mark stale and refetch the mounted matches.
@@ -186,7 +186,7 @@ A production build keeps a short code instead of the development explanation, so
 ## Dependencies
 
 - Runtime: none.
-- Peers: `@shadow-js/core` `^1.0.0`: reactive state for the query hooks.
+- Peers: `@shadow-js/core` `^1.0.3`: reactive state for the query hooks.
 
 ## Types
 

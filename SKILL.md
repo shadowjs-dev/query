@@ -5,7 +5,7 @@ description: "Work with @shadow-js/query. Fetch, cache and update server data wi
 
 # @shadow-js/query
 
-Version 1.0.3. Fetch, cache and update server data with queries, mutations and optimistic updates.
+Version 1.0.4. Fetch, cache and update server data with queries, mutations and optimistic updates.
 
 ## Where to read more
 
@@ -23,7 +23,7 @@ npm install @shadow-js/query @shadow-js/core
 
 | Package | Range | Required |
 | --- | --- | --- |
-| `@shadow-js/core` | `^1.0.3` | yes |
+| `@shadow-js/core` | `^1.0.4` | yes |
 
 ## Import paths
 
