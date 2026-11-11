@@ -60,6 +60,9 @@ function finalize(pair: Pair): void {
   const next = pair.next as Record<string, unknown>;
   const keys = Object.keys(next);
   let changed = Object.keys(prev).length !== keys.length;
+  // Holes are not keys: `[1]` and `[1, , ]` list the same keys, yet they are different arrays.
+  if (Array.isArray(pair.next) && Array.isArray(pair.prev) && pair.next.length !== pair.prev.length)
+    changed = true;
   const values: Array<readonly [string, unknown]> = [];
   for (const key of keys) {
     const kid = pair.kids.get(key);
@@ -72,6 +75,7 @@ function finalize(pair: Pair): void {
     return;
   }
   const out: Record<string, unknown> | unknown[] = Array.isArray(pair.next) ? [] : {};
+  if (Array.isArray(out) && Array.isArray(pair.next)) out.length = pair.next.length;
   // defineProperty, not assignment: a key named "__proto__" is data, not a prototype write.
   for (const [key, value] of values) {
     Object.defineProperty(out, key, {

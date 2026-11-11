@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.5
+
+### Fixed
+
+- Structural sharing returns a new array when the new data differs only by trailing holes.
+
 ## 1.0.4
 
 ### Changed
