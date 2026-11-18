@@ -1,6 +1,6 @@
 {
   "name": "@shadow-js/query",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Fetch, cache and update server data with queries, mutations and optimistic updates",
   "license": "MIT",
   "type": "module",
@@ -76,21 +76,21 @@
     "check": "npm run lint && npm run typecheck && npm run build && npm test && npm run test:perf && npm run test:gc"
   },
   "peerDependencies": {
-    "@shadow-js/core": "^1.1.0"
+    "@shadow-js/core": "^1.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.5.15",
-    "@shadow-js/core": "^1.1.0",
+    "@biomejs/biome": "2.6.6",
+    "@shadow-js/core": "^1.1.1",
     "@shadow-js/router": "*",
-    "@shadow-js/testing": "^1.1.0",
-    "@shadow-js/web": "^1.1.0",
+    "@shadow-js/testing": "^1.1.1",
+    "@shadow-js/web": "^1.1.1",
     "@testing-library/dom": "10.4.2",
     "@types/node": "^24.0.0",
     "fast-check": "^4.10.2",
     "happy-dom": "21.0.4",
-    "tsdown": "0.23.0",
+    "tsdown": "0.23.7",
     "typescript": "7.0.2",
-    "vitest": "5.0.3"
+    "vitest": "5.1.0"
   },
   "homepage": "https://query.shadowjs.net",
   "keywords": [
