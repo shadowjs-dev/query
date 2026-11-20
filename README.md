@@ -186,7 +186,7 @@ For the errors in the table below, a production build keeps a short code instead
 ## Dependencies
 
 - Runtime: none.
-- Peers: `@shadow-js/core` `^1.1.2`: reactive state for the query hooks.
+- Peers: `@shadow-js/core` `^1.2.0`: reactive state for the query hooks.
 
 ## Types
 
